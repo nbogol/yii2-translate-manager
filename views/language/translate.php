@@ -2,6 +2,7 @@
 
 /**
  * @author Lajos Molnár <lajax.m@gmail.com>
+ *
  * @since 1.0
  */
 use yii\helpers\Html;
@@ -15,23 +16,24 @@ use lajax\translatemanager\models\Language as Lang;
 /* @var $language_id string */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $searchModel lajax\translatemanager\models\searches\LanguageSourceSearch */
+/* @var $searchEmptyCommand string */
 
 $this->title = Yii::t('language', 'Translation into {language_id}', ['language_id' => $language_id]);
 $this->params['breadcrumbs'][] = ['label' => Yii::t('language', 'Languages'), 'url' => ['list']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
-<?= Html::hiddenInput('language_id', $language_id, ['id' => 'language_id', 'data-url' => Yii::$app->urlManager->createAbsoluteUrl('/translatemanager/language/save')]); ?>
+<?= Html::hiddenInput('language_id', $language_id, ['id' => 'language_id', 'data-url' => Yii::$app->urlManager->createUrl('/translatemanager/language/save')]); ?>
 <div id="translates" class="<?= $language_id ?>">
     <?php
     Pjax::begin([
-        'id' => 'translates'
+        'id' => 'translates',
     ]);
     $form = ActiveForm::begin([
-                'method' => 'get',
-                'id' => 'search-form',
-                'enableAjaxValidation' => false,
-                'enableClientValidation' => false,
+        'method' => 'get',
+        'id' => 'search-form',
+        'enableAjaxValidation' => false,
+        'enableClientValidation' => false,
     ]);
     echo $form->field($searchModel, 'source')->dropDownList(['' => Yii::t('language', 'Original')] + Lang::getLanguageNames(true))->label(Yii::t('language', 'Source language'));
     ActiveForm::end();
@@ -52,13 +54,17 @@ $this->params['breadcrumbs'][] = $this->title;
                 'filterInputOptions' => ['class' => 'form-control', 'id' => 'message'],
                 'label' => Yii::t('language', 'Source'),
                 'content' => function ($data) {
-                    return Html::textarea('LanguageSource[' . $data->id . ']', $data->source, [ 'class' => 'form-control source', 'readonly' => 'readonly']);
+                    return Html::textarea('LanguageSource[' . $data->id . ']', $data->source, ['class' => 'form-control source', 'readonly' => 'readonly']);
                 },
             ],
             [
                 'format' => 'raw',
                 'attribute' => 'translation',
-                'filterInputOptions' => ['class' => 'form-control', 'id' => 'translation'],
+                'filterInputOptions' => [
+                    'class' => 'form-control',
+                    'id' => 'translation',
+                    'placeholder' => $searchEmptyCommand ? Yii::t('language', 'Enter "{command}" to search for empty translations.', ['command' => $searchEmptyCommand]) : '',
+                ],
                 'label' => Yii::t('language', 'Translation'),
                 'content' => function ($data) {
                     return Html::textarea('LanguageTranslate[' . $data->id . ']', $data->translation, ['class' => 'form-control translation', 'data-id' => $data->id, 'tabindex' => $data->id]);
