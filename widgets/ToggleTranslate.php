@@ -2,6 +2,8 @@
 
 namespace lajax\translatemanager\widgets;
 
+// test update
+
 use Yii;
 use yii\base\Widget;
 use lajax\translatemanager\Module;
